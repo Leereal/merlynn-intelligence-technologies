@@ -1,71 +1,30 @@
-"use client";
-import React, { useState, useEffect } from "react";
+import DrinkChoiceForm from "./_components/DrinkChoiceForm";
 
-// Define types for the API response
-interface Attribute {
-  name: string;
-  question: string;
-  domain: any; // Replace `any` with a more specific type if possible
-}
+const Page = async () => {
+  const response = await fetch(
+    "https://api.up2tom.com/v3/models/58d3bcf97c6b1644db73ad12",
+    {
+      headers: {
+        Authorization: `Token ${process.env.NEXT_PUBLIC_TOM_API_KEY}`,
+        "Content-Type": "application/vnd.api+json",
+      },
+    }
+  );
 
-interface ModelData {
-  name: string;
-  metadata: {
-    attributes: Attribute[];
-  };
-}
+  if (!response.ok) {
+    throw new Error("Failed to fetch model data.");
+  }
 
-const DrinkChoice: React.FC = () => {
-  const [modelData, setModelData] = useState<ModelData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "https://api.up2tom.com/v3/models/58d3bcf97c6b1644db73ad12",
-          {
-            headers: {
-              Authorization: `Token ${process.env.NEXT_PUBLIC_TOM_API_KEY}`,
-              "Content-Type": "application/vnd.api+json",
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data: { data: { attributes: ModelData } } = await response.json();
-        setModelData(data.data.attributes);
-      } catch (error: any) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const data = await response.json();
+  const modelData = data.data.attributes;
+  console.log(modelData);
 
   return (
-    <div>
-      <h1>Drink Choice Metadata</h1>
-      {modelData && (
-        <div>
-          <p>Model Name: {modelData.name}</p>
-          <p>Input Variables:</p>
-          <ul>
-            {modelData.metadata.attributes.map((attribute, index) => (
-              <li key={index}>{attribute.question}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+    <div className="p-4 max-w-lg mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Drink Choice Decision Form</h1>
+      <DrinkChoiceForm modelData={modelData} />
     </div>
   );
 };
 
-export default DrinkChoice;
+export default Page;
