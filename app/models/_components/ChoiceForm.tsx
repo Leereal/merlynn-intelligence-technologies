@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { createDecision } from "@/actions/decision.actions";
 
-const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
+const ChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
   const form = useForm({
     mode: "onSubmit",
     defaultValues: modelData.metadata.attributes.reduce((acc, attribute) => {
@@ -170,4 +170,4 @@ const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
   );
 };
 
-export default DrinkChoiceForm;
+export default ChoiceForm;
