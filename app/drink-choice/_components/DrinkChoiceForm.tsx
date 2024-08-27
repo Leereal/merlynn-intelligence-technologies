@@ -1,41 +1,58 @@
 "use client";
 
-import React from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { getDefaultsForSchema } from "zod-defaults";
-
-const DrinkChoiceSchema = z.object({
-  temperature: z.string().optional(),
-  gender: z.string().optional(),
-  age: z.number().optional(),
-  sensitive_to_caffeine: z.string().optional(),
-  time_of_day: z.string().optional(),
-  pregnant: z.string().optional(),
-  health_conscious: z.string().optional(),
-  number_of_drinks_per_day: z.number().optional(),
-  number_of_drinks_consumed_today: z.number().optional(),
-});
-
-type DrinkChoiceType = z.infer<typeof DrinkChoiceSchema>;
-
-export const drinkChoiceDefaultValues = getDefaultsForSchema(DrinkChoiceSchema);
+import { FormProvider, useForm, Controller } from "react-hook-form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
-  const formMethods = useForm<DrinkChoiceType>({
-    resolver: zodResolver(DrinkChoiceSchema),
-    defaultValues: drinkChoiceDefaultValues,
+  const form = useForm({
+    mode: "onSubmit",
+    defaultValues: modelData.metadata.attributes.reduce((acc, attribute) => {
+      acc[attribute.name] = ""; // Initialize default values
+      return acc;
+    }, {} as Record<string, any>),
   });
 
   const {
     handleSubmit,
     formState: { errors },
-    register,
-  } = formMethods;
+    control,
+    getValues,
+    setValue,
+  } = form;
 
-  const onSubmit = async (data: DrinkChoiceType) => {
-    console.log("Form Data Submitted:", data);
+  const onSubmit = async (data: Record<string, any>) => {
+    // Apply the rule: If INPUTVAR2 is "Male", set INPUTVAR6 to "NA"
+    if (data.INPUTVAR2 === "Male") {
+      data.INPUTVAR6 = "NA";
+    }
+
+    // Transform the data to match the expected structure
+    const transformedData = modelData.metadata.attributes.reduce(
+      (acc: Record<string, number | string>, attribute) => {
+        const fieldName = attribute.name;
+        if (attribute.domain.type === "DomainR") {
+          acc[fieldName] = parseFloat(data[fieldName]);
+        } else if (attribute.domain.type === "DomainC") {
+          acc[fieldName] = data[fieldName];
+        }
+        return acc;
+      },
+      {}
+    );
 
     try {
       const response = await fetch(
@@ -47,7 +64,7 @@ const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
             "Content-Type": "application/vnd.api+json",
           },
           body: JSON.stringify({
-            data: { type: "scenario", attributes: { input: data } },
+            data: { type: "scenario", attributes: { input: transformedData } },
           }),
         }
       );
@@ -55,32 +72,79 @@ const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
         throw new Error("Failed to get a decision from the model.");
       }
       const decision = await response.json();
-      console.log("Decision: ", decision);
     } catch (error: any) {
       console.error(error.message);
     }
   };
 
   return (
-    <FormProvider {...formMethods}>
+    <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {modelData.metadata.attributes.map((attribute) => (
-          <div key={attribute.name}>
-            <label className="block text-sm font-medium">
-              {attribute.question}
-            </label>
-            <input
-              {...register(attribute.name as keyof DrinkChoiceType)}
-              type="text"
-              className="block w-full mt-1 p-2 border rounded-md"
+        {modelData.metadata.attributes.map((attribute) => {
+          const fieldName = attribute.name;
+          const isContinuous = attribute.domain.type === "DomainR";
+          const isNominal = attribute.domain.type === "DomainC";
+
+          return (
+            <FormField
+              key={fieldName}
+              control={control}
+              name={fieldName}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{attribute.question}</FormLabel>
+                  <FormControl>
+                    {isContinuous ? (
+                      <Input
+                        {...field}
+                        type="number"
+                        step={attribute.domain.interval || "1"}
+                        min={attribute.domain.lower}
+                        max={attribute.domain.upper}
+                      />
+                    ) : isNominal ? (
+                      <Controller
+                        name={fieldName}
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              // Handle rule-based logic
+                              if (
+                                fieldName === "INPUTVAR2" &&
+                                value === "Male"
+                              ) {
+                                setValue("INPUTVAR6", "NA");
+                              }
+                            }}
+                            value={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an option" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {attribute.domain.values.map((option: string) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    ) : (
+                      <Input {...field} type="text" />
+                    )}
+                  </FormControl>
+                  <FormMessage>
+                    {errors[fieldName]?.message?.toString()}
+                  </FormMessage>
+                </FormItem>
+              )}
             />
-            {errors[attribute.name as keyof DrinkChoiceType] && (
-              <p className="text-red-600 text-sm mt-1">
-                {errors[attribute.name as keyof DrinkChoiceType]?.message}
-              </p>
-            )}
-          </div>
-        ))}
+          );
+        })}
         <button
           type="submit"
           className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"

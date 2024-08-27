@@ -14,10 +14,8 @@ const Page = async () => {
   if (!response.ok) {
     throw new Error("Failed to fetch model data.");
   }
-
   const data = await response.json();
   const modelData = data.data.attributes;
-  console.log(modelData);
 
   return (
     <div className="p-4 max-w-lg mx-auto">
