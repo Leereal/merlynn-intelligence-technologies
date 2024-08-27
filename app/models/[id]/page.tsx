@@ -58,7 +58,7 @@ const Page = () => {
       </h1>
       <ChoiceForm modelData={modelData} id={id} />
       <hr className="my-5" />
-      <BatchUpload modelId={id} /> {/* Add the batch upload component here */}
+      <BatchUpload modelId={id} />
     </div>
   );
 };
