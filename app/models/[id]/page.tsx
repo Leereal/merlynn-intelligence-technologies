@@ -6,7 +6,8 @@ import { useParams } from "next/navigation";
 import ChoiceForm from "../_components/ChoiceForm";
 
 const Page = () => {
-  const { id } = useParams(); // Extract model ID from URL
+  const params = useParams();
+  const id = typeof params.id === "string" ? params.id : params.id?.[0];
   const [modelData, setModelData] = useState<ModelData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,9 +55,8 @@ const Page = () => {
   return (
     <div className="p-4 max-w-lg mx-auto">
       <h1 className="text-3xl font-bold mb-6">Drink Choice Decision Form</h1>
-      <ChoiceForm modelData={modelData} />
+      <ChoiceForm modelData={modelData} id={id} />
     </div>
   );
 };
-
 export default Page;

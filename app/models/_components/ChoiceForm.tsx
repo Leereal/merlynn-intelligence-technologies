@@ -1,6 +1,7 @@
 "use client";
 
-import { FormProvider, useForm, Controller } from "react-hook-form";
+import React, { useState } from "react";
+import { useForm, Controller, FormProvider } from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -18,7 +19,14 @@ import {
 } from "@/components/ui/select";
 import { createDecision } from "@/actions/decision.actions";
 
-const ChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
+const ChoiceForm: React.FC<{ modelData: ModelData; id: string }> = ({
+  modelData,
+  id,
+}) => {
+  const [decisionResult, setDecisionResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(true);
+
   const form = useForm({
     mode: "onSubmit",
     defaultValues: modelData.metadata.attributes.reduce((acc, attribute) => {
@@ -27,16 +35,11 @@ const ChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
     }, {} as Record<string, any>),
   });
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    control,
-    getValues,
-    setValue,
-  } = form;
+  const { handleSubmit, control, setValue } = form;
+
   const onSubmit = async (data: Record<string, any>) => {
     // Apply the rule: If INPUTVAR2 is "Male", set INPUTVAR6 to "NA"
-    if (data.INPUTVAR2 === "Male") {
+    if (data.INPUTVAR2 === "Male" && id === "58d3bcf97c6b1644db73ad12") {
       data.INPUTVAR6 = "NA";
     }
 
@@ -55,19 +58,16 @@ const ChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
     );
 
     try {
-      const response = await fetch(
-        `https://api.up2tom.com/v3/decision/58d3bcf97c6b1644db73ad12`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Token ${process.env.NEXT_PUBLIC_TOM_API_KEY}`,
-            "Content-Type": "application/vnd.api+json",
-          },
-          body: JSON.stringify({
-            data: { type: "scenario", attributes: { input: transformedData } },
-          }),
-        }
-      );
+      const response = await fetch(`https://api.up2tom.com/v3/decision/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${process.env.NEXT_PUBLIC_TOM_API_KEY}`,
+          "Content-Type": "application/vnd.api+json",
+        },
+        body: JSON.stringify({
+          data: { type: "scenario", attributes: { input: transformedData } },
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to get a decision from the model.");
@@ -82,91 +82,123 @@ const ChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
       };
 
       // Save the decision data
-      await createDecision(decisionData, "/drink-choice"); // Adjust revalidation path as needed
+      await createDecision(decisionData, "/models"); // Adjust revalidation path as needed
 
-      console.log("Decision: ", result.data.attributes.decision);
-      console.log("Confidence: ", result.data.attributes.confidence);
+      setDecisionResult(decisionData);
+      setError(null); // Clear any previous errors
+      setShowForm(false); // Hide the form and show the result
     } catch (error: any) {
-      console.error(error.message);
+      setError(error.message);
+      setDecisionResult(null); // Clear previous results
     }
   };
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {modelData.metadata.attributes.map((attribute) => {
-          const fieldName = attribute.name;
-          const isContinuous = attribute.domain.type === "DomainR";
-          const isNominal = attribute.domain.type === "DomainC";
+    <div>
+      {showForm ? (
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {modelData.metadata.attributes.map((attribute) => {
+              const fieldName = attribute.name;
+              const isContinuous = attribute.domain.type === "DomainR";
+              const isNominal = attribute.domain.type === "DomainC";
 
-          return (
-            <FormField
-              key={fieldName}
-              control={control}
-              name={fieldName}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{attribute.question}</FormLabel>
-                  <FormControl>
-                    {isContinuous ? (
-                      <Input
-                        {...field}
-                        type="number"
-                        step={attribute.domain.interval || "1"}
-                        min={attribute.domain.lower}
-                        max={attribute.domain.upper}
-                      />
-                    ) : isNominal ? (
-                      <Controller
-                        name={fieldName}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              // Handle rule-based logic
-                              if (
-                                fieldName === "INPUTVAR2" &&
-                                value === "Male"
-                              ) {
-                                setValue("INPUTVAR6", "NA");
-                              }
-                            }}
-                            value={field.value}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select an option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {attribute.domain.values.map((option: string) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+              return (
+                <FormField
+                  key={fieldName}
+                  control={control}
+                  name={fieldName}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{attribute.question}</FormLabel>
+                      <FormControl>
+                        {isContinuous ? (
+                          <Input
+                            {...field}
+                            type="number"
+                            step={attribute.domain.interval || "1"}
+                            min={attribute.domain.lower}
+                            max={attribute.domain.upper}
+                          />
+                        ) : isNominal ? (
+                          <Controller
+                            name={fieldName}
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  // Handle rule-based logic
+                                  if (
+                                    fieldName === "INPUTVAR2" &&
+                                    value === "Male" &&
+                                    id === "58d3bcf97c6b1644db73ad12"
+                                  ) {
+                                    setValue("INPUTVAR6", "NA");
+                                  }
+                                }}
+                                value={field.value}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select an option" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {attribute.domain.values.map(
+                                    (option: string) => (
+                                      <SelectItem key={option} value={option}>
+                                        {option}
+                                      </SelectItem>
+                                    )
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                        ) : (
+                          <Input {...field} type="text" />
                         )}
-                      />
-                    ) : (
-                      <Input {...field} type="text" />
-                    )}
-                  </FormControl>
-                  <FormMessage>
-                    {errors[fieldName]?.message?.toString()}
-                  </FormMessage>
-                </FormItem>
-              )}
-            />
-          );
-        })}
-        <button
-          type="submit"
-          className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
-        >
-          Submit
-        </button>
-      </form>
-    </FormProvider>
+                      </FormControl>
+                      <FormMessage>
+                        {form.formState.errors[fieldName]?.message?.toString()}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
+              );
+            })}
+            <button
+              type="submit"
+              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+            >
+              Submit
+            </button>
+          </form>
+        </FormProvider>
+      ) : (
+        <div className="decision-result">
+          {decisionResult ? (
+            <div>
+              <h2>Decision Result</h2>
+              <p>
+                <strong>Decision:</strong> {decisionResult.decision}
+              </p>
+              <p>
+                <strong>Confidence:</strong> {decisionResult.confidence}
+              </p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="mt-4 bg-gray-500 text-white py-2 px-4 rounded"
+              >
+                Back to Form
+              </button>
+            </div>
+          ) : (
+            <p>No decision result available.</p>
+          )}
+          {error && <p className="text-red-500">{error}</p>}
+        </div>
+      )}
+    </div>
   );
 };
 
