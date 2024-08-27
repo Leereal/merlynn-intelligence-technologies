@@ -23,6 +23,7 @@ export async function createDecision(
   }
 }
 
+// Upload a batch file to TOM API
 export async function uploadBatchFile(modelId: string, file: File) {
   try {
     const formData = new FormData();

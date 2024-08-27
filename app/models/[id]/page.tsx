@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ChoiceForm from "../_components/ChoiceForm";
+import BatchUpload from "../_components/BatchUpload";
 
 const Page = () => {
   const params = useParams();
@@ -11,7 +12,6 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to fetch model data
   const fetchModelData = async () => {
     if (!id) {
       setError("Model ID is missing.");
@@ -57,6 +57,8 @@ const Page = () => {
         {modelData.name} Decision Form
       </h1>
       <ChoiceForm modelData={modelData} id={id} />
+      <hr className="my-5" />
+      <BatchUpload modelId={id} /> {/* Add the batch upload component here */}
     </div>
   );
 };

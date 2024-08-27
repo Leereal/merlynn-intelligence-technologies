@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Merlynn Intelligence Technologies Coding Assessment
+
+## Overview
+
+This repository contains a set of applications designed to interact with various machine learning models through a web interface. The app supports multiple models and allows users to input data, retrieve decisions, and upload batch files for processing.
+
+## Example Models Included
+
+### Drink Choice
+
+- **Description**: Determines the best-suited drink choice for a customer at a restaurant based on input factors like temperature, gender, age, etc.
+- **Expert**: Best chef in town.
+- **Demo**: Created for testing the API.
+
+### Balance Scale
+
+- **Description**: Utilizes the UCI Machine Learning Repository data to classify balance scale measurements.
+- **Expert**: UCI Machine Learning Repository.
+
+### Monks
+
+- **Description**: Also from the UCI Machine Learning Repository, used for classification tasks.
+- **Expert**: UCI Machine Learning Repository.
+
+### Drink Choice Duplicate
+
+- **Description**: A duplicate of the Drink Choice model, created for testing the API.
+
+## Features
+
+- Model Selection: Choose from various models such as Drink Choice, Balance Scale, Monks, and more.
+- Form Submission: Input data and get recommendations based on selected models.
+- Batch File Upload: Upload CSV files to process multiple entries at once.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js: Ensure you have Node.js installed. [Download Node.js](https://nodejs.org/)
+- MongoDB: Ensure MongoDB is installed and running. [Download MongoDB](https://www.mongodb.com/try/download/community)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the Repository
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   git clone https://github.com/Leereal/merlynn-intelligence-technologies.git
+   cd merlynn-intelligence-technologies
 
-## Learn More
+2. Install Dependencies
 
-To learn more about Next.js, take a look at the following resources:
+   npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Environment Variables
+   Create MongoDB database and name is merlynn
+   Create a `.env` file in the root directory of the project and add the following:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   NEXT_PUBLIC_TOM_API_KEY=your_api_key
+   MONGO_URI=your_mongo_uri
 
-## Deploy on Vercel
+4. Start the Application
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   npm run dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+   The application will be accessible at http://localhost:3000.
+
+## Functions
+
+### Form Handling
+
+Users can submit forms to generate decisions based on the selected model.
+
+### Batch File Upload
+
+Upload CSV files to process multiple records in batch.
+
+### Decision Creation
+
+The application saves decisions to MongoDB and supports cache revalidation.
+
+## Usage
+
+1. Visit the Homepage: Navigate to the homepage to view and select models.
+2. Submit Data: Use the forms to input data for decision-making.
+3. Upload Batch Files: Use the batch file upload functionality to process multiple entries.
+
+## Assumptions
+
+- **Requirements Scope:** It is assumed that the requirements defined are the only functionalities needed. As such, features like view data, update values, and others not mentioned in the requirements were not implemented.
+- **Authentication:** Since this is a public app assessment, no authentication system was created. If authentication were required, [NextAuth.js](https://next-auth.js.org/) would have been used, as it is a robust solution for authentication in Next.js applications.
+- **Environment Variables:** Sensitive values are kept in environment variables to ensure security, following best practices for managing configuration.
+
+## Contact and More Similar Projects
+
+For any questions or further information, please reach out to Liberty at [leereal08@ymail.com](mailto:leereal08@ymail.com).
+
+If you would like to see some of the best Next.js applications I have developed, please check out the following links:
+
+- [Microfinex](https://github.com/Leereal/microfinex-frontend)
+- [Microfinex Pro](https://github.com/Leereal/microfinex-pro)
+- [Ronkedza](https://github.com/Leereal/official-ronkedza)
+- [Tredique](https://github.com/Leereal/tredique-frontend)
+- [Lynx](https://github.com/Leereal/lynx-official)

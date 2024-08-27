@@ -1,0 +1,7 @@
+Temperature,Gender,Age,Sensitive_to_Caffeine,Time_of_day,Pregnant,Health_conscious,Number_of_drinks_per_day,Number_of_drinks_today,DrinkChoice
+15,Male,25,No,Morning,NA,Yes,2,1,Coffee
+30,Female,32,Yes,Afternoon,Yes,No,4,2,Tea
+20,Female,45,No,Evening,No,Yes,1,0,Water
+-5,Male,50,Not sure,Morning,NA,No,3,1,Hot Chocolate
+35,Female,28,Yes,Afternoon,Yes,Yes,2,1,Iced Tea
+10,Male,19,No,Evening,NA,Yes,1,0,Smoothie
