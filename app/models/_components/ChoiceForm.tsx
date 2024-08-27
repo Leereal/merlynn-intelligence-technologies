@@ -177,17 +177,27 @@ const ChoiceForm: React.FC<{ modelData: ModelData; id: string }> = ({
       ) : (
         <div className="decision-result">
           {decisionResult ? (
-            <div>
-              <h2>Decision Result</h2>
-              <p>
-                <strong>Decision:</strong> {decisionResult.decision}
-              </p>
-              <p>
-                <strong>Confidence:</strong> {decisionResult.confidence}
-              </p>
+            <div className="p-6 bg-white rounded-lg shadow-lg">
+              <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
+                Decision Result
+              </h2>
+              <div className="text-lg text-gray-700">
+                <p className="mb-2">
+                  <strong className="font-semibold text-gray-900">
+                    Decision:
+                  </strong>{" "}
+                  {decisionResult.decision}
+                </p>
+                <p>
+                  <strong className="font-semibold text-gray-900">
+                    Confidence:
+                  </strong>{" "}
+                  {decisionResult.confidence}%
+                </p>
+              </div>
               <button
                 onClick={() => setShowForm(true)}
-                className="mt-4 bg-gray-500 text-white py-2 px-4 rounded"
+                className="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-5 rounded-lg transition-colors"
               >
                 Back to Form
               </button>

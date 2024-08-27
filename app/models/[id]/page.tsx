@@ -1,4 +1,3 @@
-// Import necessary hooks and components
 "use client";
 
 import { useEffect, useState } from "react";
@@ -54,9 +53,12 @@ const Page = () => {
 
   return (
     <div className="p-4 max-w-lg mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Drink Choice Decision Form</h1>
+      <h1 className="text-3xl font-bold mb-6 capitalize text-center">
+        {modelData.name} Decision Form
+      </h1>
       <ChoiceForm modelData={modelData} id={id} />
     </div>
   );
 };
+
 export default Page;
