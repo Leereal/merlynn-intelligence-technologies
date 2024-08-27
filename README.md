@@ -43,8 +43,8 @@ This repository contains a set of applications designed to interact with various
 
 1. Clone the Repository
 
-   git clone https://github.com/Leereal/merlynn-intelligence-technologies.git
-   cd merlynn-intelligence-technologies
+   - git clone https://github.com/Leereal/merlynn-intelligence-technologies.git
+   - cd merlynn-intelligence-technologies
 
 2. Install Dependencies
 
