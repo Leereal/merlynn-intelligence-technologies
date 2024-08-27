@@ -51,7 +51,9 @@ This repository contains a set of applications designed to interact with various
    npm install
 
 3. Environment Variables
+
    Create MongoDB database and name is merlynn
+
    Create a `.env` file in the root directory of the project and add the following:
 
    NEXT_PUBLIC_TOM_API_KEY=your_api_key
