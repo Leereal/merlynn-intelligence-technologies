@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createDecision } from "@/actions/decision.actions";
 
 const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
   const form = useForm({
@@ -33,7 +34,6 @@ const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
     getValues,
     setValue,
   } = form;
-
   const onSubmit = async (data: Record<string, any>) => {
     // Apply the rule: If INPUTVAR2 is "Male", set INPUTVAR6 to "NA"
     if (data.INPUTVAR2 === "Male") {
@@ -68,10 +68,24 @@ const DrinkChoiceForm: React.FC<{ modelData: ModelData }> = ({ modelData }) => {
           }),
         }
       );
+
       if (!response.ok) {
         throw new Error("Failed to get a decision from the model.");
       }
-      const decision = await response.json();
+
+      const result = await response.json();
+      const decisionData = {
+        decision: result.data.attributes.decision,
+        confidence: result.data.attributes.confidence,
+        model: result.data.attributes.model,
+        input: transformedData,
+      };
+
+      // Save the decision data
+      await createDecision(decisionData, "/drink-choice"); // Adjust revalidation path as needed
+
+      console.log("Decision: ", result.data.attributes.decision);
+      console.log("Confidence: ", result.data.attributes.confidence);
     } catch (error: any) {
       console.error(error.message);
     }
